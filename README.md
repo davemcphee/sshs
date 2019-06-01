@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/davemcphee/sshs.svg?branch=master)](https://travis-ci.org/davemcphee/ssh_config_search)
+[![Build Status](https://travis-ci.org/davemcphee/sshs.svg?branch=master)](https://travis-ci.org/davemcphee/sshs)
 
 ~~~~
 $ sshs servername00024

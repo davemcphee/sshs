@@ -1,6 +1,6 @@
 // sshs takes a single required argument, a hostname, and searches ~/.ssh/config for that hosts' info, and
 // pretty prints it to stdout
-// flags include --ssh_config.location for alternative config file to parse. See host_info --help for usage.
+// flags include --conf_file for alternative config file to parse. See sshs --help for usage.
 package main
 
 import (

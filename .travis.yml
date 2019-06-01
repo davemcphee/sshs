@@ -13,18 +13,20 @@ notifications:
 
 before_install:
 - go get github.com/mitchellh/gox
+
 script:
 - go get -t -v ./...
 - diff -u <(echo -n) <(gofmt -d .)
 - go vet $(go list ./... | grep -v /vendor/)
 - go test -v -race ./...
-- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin" -arch="amd64" -output="sshs.{{.OS}}.{{.Arch}}" -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...; fi
+- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin" -arch="amd64" -output="sshs.{{.OS}}.{{.Arch}}"
+  -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...; fi
 
 deploy:
   provider: releases
   skip_cleanup: true
   api_key:
-    secure: PvkCMwL451/GQjwvj7SbzI1dwd03I1qUGesFbpiGxiyXIlyDIksBeguBJnPKOu7wQmq2OoXypVEnbJpZ45z9KLCHHTp5cZ9aC21EPB+EzsW3SCAziQbqwRRshmfSt4tVYr0ib1hTLoqeAWdY/jWbjNuOvZDndD4qJKxnFM+f3BvlGbWa+UJxysDIcypStsMISetc9eMAFcZBKQmfWzbjBh3aCC8KOVol2WB+TgtRbrxPtExqJPqhNXMa59BLqDkAvnJ6crQP6CCFcPNfHCGx91D7I8jEuXkcEzvw3vVTSe6Z28f6dkUlLCPTwwiWm7AXjweB5v2j/CWJAHJVGufujc7YTqn7EWx+iDWyTQ6LRIOdOmRf1suMCY9TKO2BYLMNO0LvihLpxor+sw6fZInYHw2ZAeWx3k7kpfd43r354xDyBuFUcI70HeyueWeI4y9vbkSkrGPGPKX7MEJSjHCFTJ3vJFPsng33ldDhhU3Sgvg9D8qurSQ89mxNGoqom+/AYq1DAX6Nmqghl5C4tfrwO/p+tgX9dVhC+g30+7afFBght2a1R5LUqih1BnS2Meeawyv/uGCn62hysGX41o+2tyDYPzl7us5EbLWkajCKDQoV38rQfnWym+W7Mv9oxctD2uGSTjzxEgtE5IF0ILJDSyCZZWn66aOoZzihJfyJUoI=
+    secure: KKu2JpnhOWVq9d9XuZAbuhmYzlKdD/hOjS/v6OlCqqMmnUtS0wY7uWYwPUkn3ZFmZQF/WRqnour+/rxzGJL4eoM5ZCQ24OCNmURShG8SZZnd65brE+RAwDrIPcAAdMafeJtG/D6uS7wTWGtiX4YRM5uFl/WEoRNv/e7DUR4R1W3DQd4vyeTuWR0RvAivNKxK1gOzRjKaotMXF4WdL03V04XtkyGjNGmIXlxrFuseDvQFJOaCUP0JI9+CnYRl7OmNp/5X8ErHybLyRdPlSKpHIB1KxFQI/4pdFeuXLWkI+pyAsRtmnJIp+mBDdKApgb4k2uzhglfGj8EC0LPXHMOteGZFDwVLaJAGkjC3K7BYGtTBFwlxPJ38G6hmi7ogLU3U8HUZxOx4QVFLLj9+15gHr1n4Pc8jGgWLli2THZeugAQ52ipt83Lh7YRoKa9uZCNle4V/5cJVCaw8LjMddPFlmMReGPK2Ed2umX6xxNrQvSU2v+aSV4/wmtDHOczNKF9iciOwspAB/QCzbgVjS5oHCTQcfsMp4Xf5Pw/nAc7NqNuVwI9rqwxj4FAEdlJHFfr6BHRYktP7/sirqS97LPxP8Dugl9w/3VrXkr22VjHJlCX3UQPHcoUyfJOTZsUe8vtJuZ/JTqtSrtExoZeXqmyAg7m2mK4SXdHgb11OGZDgS3A=
   file:
     - sshs.linux.amd64
     - sshs.darwin.amd64

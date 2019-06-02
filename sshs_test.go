@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 )
 
@@ -9,65 +8,73 @@ import "io/ioutil"
 import "testing"
 
 const selma0004 string = `
-Host selma0004
+Host server004
 	User root
-	Hostname 10.1.0.156
+	Hostname 10.1.2.3
 	Port 22
 	Protocol 2
-	IdentityFile /home/alex/.ssh/gitolite
+	IdentityFile /home/user/.ssh/id_rsa
 	ProxyCommand none
 
-Host dirtycid00024
+Host server00024
     User root
-    Hostname 10.1.2.7
+    Hostname 10.1.2.3
     Port 22
     Protocol 2
-    IdentityFile /home/alex/.ssh/gitolite
-    ProxyCommand ssh -W %h:%p -q root@52.144.40.132
+    IdentityFile home/user/.ssh/id_rsa
+    ProxyCommand ssh -W %h:%p -q root@1.2.3.4
+
 `
 
-func TestSSHConfigFileParsing(t *testing.T) {
-	content := []byte(selma0004)
+func Test_parseChunks(t *testing.T) {
+	t.Run("parseChunks reading from tmp file", func(t *testing.T) {
+		content := []byte(selma0004)
 
-	tmpfile, err := ioutil.TempFile("", "host_info.*.test")
-	if err != nil {
-		log.Fatal(err)
-	}
+		tmpfile, err := ioutil.TempFile("", "host_info.*.test")
+		if err != nil {
+			t.Error(err)
+		}
 
-	defer os.Remove(tmpfile.Name()) // clean up
+		defer os.Remove(tmpfile.Name()) // clean up
 
-	if _, err := tmpfile.Write(content); err != nil {
-		log.Fatal(err)
-	}
-	if err := tmpfile.Close(); err != nil {
-		log.Fatal(err)
-	}
+		if _, err := tmpfile.Write(content); err != nil {
+			t.Error(err)
+		}
+		if err := tmpfile.Close(); err != nil {
+			t.Error(err)
+		}
 
-	// Test selma0004
-	host, err := parseSSHConfig(tmpfile.Name(), "selma0004")
-	if err != nil {
-		t.Errorf("parseSSHConfig(selma0004) failed: %v", err)
-	}
+		// set up some channels and test parseChunks
 
-	if host.ipAddr != "10.1.0.156" {
-		t.Errorf("Got wrong data from parseSSHConfig(selma0004): ipAddr is %v", host.ipAddr)
-	}
+		chunkChan := make(chan []string)
+		stopChan := make(chan bool)
 
-	if host.bastionHost != "none" {
-		t.Errorf("Got wrong bastionhost from parseSSHConfig(selma0004): %v", host.bastionHost)
-	}
+		go parseChunks(tmpfile.Name(), chunkChan, stopChan)
 
-	// Test dirtycid00024
-	host2, err2 := parseSSHConfig(tmpfile.Name(), "dirtycid00024")
-	if err2 != nil {
-		t.Errorf("parseSSHConfig(dirtycid00024) failed: %v", err2)
-	}
+		chunkCounter := 0
 
-	if host2.ipAddr != "10.1.2.7" {
-		t.Errorf("Got wrong data from parseSSHConfig(dirtycid00024): ipAddr is %v", host2.ipAddr)
-	}
+		for range chunkChan {
+			chunkCounter++
+		}
 
-	if host2.bastionHost != "ssh -W %h:%p -q root@52.144.40.132" {
-		t.Errorf("Got wrong bastionhost from parseSSHConfig(dirtycid00024): %v", host2.bastionHost)
-	}
+		if chunkCounter != 2 {
+			t.Error("Failed to get 2 chunks from parseChunks()")
+		}
+	})
+}
+
+func Test_NewHostInfo(t *testing.T) {
+	t.Run("Make HostInfo struct with bad data", func(t *testing.T) {
+		if _, err := NewHostInfo([]string{"", "", "", "", ""}); (err == nil) != false {
+			t.Error("NewHostInfo didn't return error when it should have")
+		}
+	})
+	t.Run("Make HostInfo struct with good data", func(t *testing.T) {
+		dats := []string{"Host selma0004", "User root", "Hostname 10.1.0.156",
+			"Port 22", "Protocol 2", "IdentityFile /home/alex/.ssh/gitolite",
+			"ProxyCommand none"}
+		if _, err := NewHostInfo(dats); (err != nil) != false {
+			t.Errorf("NewHostInfo returned error: %v", err)
+		}
+	})
 }

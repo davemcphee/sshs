@@ -13,10 +13,9 @@ Jumphost:	root@123.4.5.6
 usage: sshs [<flags>] <hostname>
 
 Flags:
-      --help     Show context-sensitive help (also try --help-long and --help-man).
-      --conf_file="/home/alex/.ssh/config"  
-                 path to ssh/config file to search
-  -v, --verbose  lots o' logs
+  --help  Show context-sensitive help (also try --help-long and --help-man).
+  --conf_file="/home/alex/.ssh/config"  
+          path to ssh/config file to search
 
 Args:
   <hostname>  host to search for (required)

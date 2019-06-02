@@ -7,9 +7,7 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/google/logger"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"io/ioutil"
 	"os"
 	"strings"
 )
@@ -151,10 +149,7 @@ func main() {
 			"conf_file",
 			"path to ssh/config file to search",
 		).Default(defaultSSHConfigPath).String()
-		verbose = kingpin.Flag(
-			"verbose",
-			"lots o' logs",
-		).Short('v').Bool()
+
 		hostName = kingpin.Arg(
 			"hostname",
 			"host to search for (required)",
@@ -163,10 +158,6 @@ func main() {
 
 	// parse cmd line args
 	kingpin.Parse()
-
-	// stdout logger
-	stdoutLogger := logger.Init("Logger Example", *verbose, false, ioutil.Discard)
-	stdoutLogger.Infof("Using config file %v", *sshConfigFile)
 
 	// Create a channel to read result on
 	chunkChan := make(chan []string)
